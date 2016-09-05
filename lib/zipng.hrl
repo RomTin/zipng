@@ -26,9 +26,36 @@ check_sign(BinPNG) ->
     BinSignature = binary:encode_unsigned(Signature),
     {(BinSignature =:= ?SIGN), Rest}.
 
+split_into_chunks(<<"">>) ->
+    [];
 split_into_chunks(BinPNG) ->
     %% BinPNG must not contain SIGNATURE
-    <<DataLen:32, Name:32, Rest/binary>> = BinPNG.
+    <<DataLen:32, Name:32, _Rest/binary>> = BinPNG,
+    LenInBit = DataLen * 8,
+
+    <<Data:LenInBit, CRC32:32, Rest/binary>> = _Rest,
+
+    CrcBody = <<Name:32, Data:LenInBit>>,
+
+    io:format("========================================~n"),
+    io:format("Chunk\tData Length\t:~p~n\tName (4byte)\t:~p~n", [DataLen, binary:encode_unsigned(Name)]),
+    io:format("\tCRC32 value\t:~p~n", [CRC32]),
+    io:format("\tvalid chunk\t:~p~n", [CRC32 =:= erlang:crc32(CrcBody)]),
+    case binary:encode_unsigned(Name) of
+        <<"IEND">> ->
+            [{binary_to_list(binary:encode_unsigned(Name))
+              ,<<DataLen:32,
+                 Name:32,
+                 Data:LenInBit,
+                 CRC32:32>>}];
+        _ ->
+            [{binary_to_list(binary:encode_unsigned(Name))
+              ,<<DataLen:32,
+                 Name:32,
+                 Data:LenInBit,
+                 CRC32:32>>}
+             | split_into_chunks(Rest)]
+    end.
 
 
 %%========================================

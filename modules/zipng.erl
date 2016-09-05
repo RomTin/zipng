@@ -31,7 +31,8 @@ check_sign(BinPNG) ->
 
 split_into_chunks(BinPNG) ->
     %% BinPNG must not contain SIGNATURE
-    <<DataLen:32, Name:32, Rest/binary>> = BinPNG.
+    <<DataLen:32, Name:32, Rest/binary>> = BinPNG,
+    io:format("~p ~p~n", [DataLen, Name]).
 
 
 %%========================================
