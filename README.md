@@ -5,7 +5,8 @@
 
 ### run
 ```
-$ escript zipng.erl path/to/png path/to/zip
+$ chmod u+x ./*.erl
+$ ./zipng.erl path/to/png path/to/zip
 ```
 
 ### notifications
