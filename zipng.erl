@@ -6,8 +6,10 @@
 %%========================================
 %% main
 %%========================================
-main([PNG, ZIP]) ->
-    io:format(">>> ~p will be combined with ~p.~n", [ZIP, PNG]),
+main(Arguments) when length(Arguments) >= 2 ->
+    ZipList = tl(Arguments),
+    PNG = hd(Arguments),
+    io:format(">>> ~p will be hidden in ~p as zip arhive.~n", [ZipList, PNG]),
     {Status, BinPNG} = check_sign(load_png(PNG)),
     case Status of
         false ->

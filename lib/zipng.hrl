@@ -36,11 +36,9 @@ split_into_chunks(BinPNG) ->
     <<Data:LenInBit, CRC32:32, Rest/binary>> = _Rest,
 
     CrcBody = <<Name:32, Data:LenInBit>>,
+    %% chunk output
+    io:format("Name: ~p | Size: ~10B | CRC32: ~10B | valid: ~p~n", [binary:encode_unsigned(Name), DataLen, CRC32, CRC32 =:= erlang:crc32(CrcBody)]),
 
-    io:format("========================================~n"),
-    io:format("Chunk\tData Length\t:~p~n\tName (4byte)\t:~p~n", [DataLen, binary:encode_unsigned(Name)]),
-    io:format("\tCRC32 value\t:~p~n", [CRC32]),
-    io:format("\tvalid chunk\t:~p~n", [CRC32 =:= erlang:crc32(CrcBody)]),
     case binary:encode_unsigned(Name) of
         <<"IEND">> ->
             [{binary_to_list(binary:encode_unsigned(Name))
