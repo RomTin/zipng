@@ -57,6 +57,9 @@ split_into_chunks(BinPNG) ->
              | split_into_chunks(Rest)]
     end.
 
+combin_binary(BinA, BinB) ->
+    <<BinA, BinB>>.
+
 
 %%========================================
 %% test methods
