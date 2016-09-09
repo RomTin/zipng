@@ -32,7 +32,6 @@ split_into_chunks(BinPNG) ->
     %% BinPNG must not contain SIGNATURE
     <<DataLen:32, Name:32, _Rest/binary>> = BinPNG,
     LenInBit = DataLen * 8,
-
     <<Data:LenInBit, CRC32:32, Rest/binary>> = _Rest,
 
     CrcBody = <<Name:32, Data:LenInBit>>,
@@ -55,9 +54,23 @@ split_into_chunks(BinPNG) ->
              | split_into_chunks(Rest)]
     end.
 
-combin_binary(BinA, BinB) ->
-    <<BinA, BinB>>.
+make_archive(FileNameList) ->
+    MessFiles = [{Fname, file:read_file(Fname)}
+                 || Fname <- FileNameList],
+    Files = [{"./archive/" ++ filename:basename(Fname), Fbin}
+             || {Fname, {Status, Fbin}} <- MessFiles, Status =:= ok],
+    {ok, {_, ZipBin}} = zip:zip("_buf.zip", Files, [memory]),
+    ZipBin.
 
+make_zTXT_chunk(ZipBin) ->
+    BinSize = 3 + length(binary_to_list(ZipBin)),
+    BinSizeInBit = BinSize * 8,
+    OtherData = <<"zTXT", " ">>,
+    ChunkData = << OtherData/binary, 0:8, 0:8, ZipBin/binary >>,
+    CRC32 = erlang:crc32(ChunkData),
+    Ret = <<BinSize:32, ChunkData/binary, CRC32:32>>,
+    split_into_chunks(Ret),
+    Ret.
 
 %%========================================
 %% test methods
