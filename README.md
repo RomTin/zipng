@@ -6,7 +6,8 @@
 ### run
 ```
 $ chmod u+x ./*.erl
-$ ./zipng.erl path/to/png path/to/zip
+$ ./zipng.erl path/to/png path/to/png2 path/to/png3 ...
+%% png2,3...will be zipped and appended to png1
 ```
 
 ### notifications
