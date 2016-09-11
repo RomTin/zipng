@@ -17,12 +17,12 @@ main(Arguments) when length(Arguments) >= 2 ->
             halt();
         true ->
             PNGBinList = lists:droplast([Bin || {_, Bin} <- split_into_chunks(PNGBin)]),
-            Hoge = make_zTXT_chunk(make_archive(ZipList)),
-            NewBin = list_to_binary([?SIGN | PNGBinList ++ [Hoge, ?IEND]]),
-            {ok, Fp} = file:open("arc.zip", write),
-            %file:write(Fp, NewBin),
-            file:write(Fp, make_archive(ZipList)),
-            file:close(Fp)
+            ZipBin = make_zTXT_chunk(make_archive(ZipList)),
+            NewBin = list_to_binary([?SIGN | PNGBinList] ++ [?IEND, ZipBin]),
+            {ok, Fp} = file:open("./out_" ++ filename:basename(PNG), write),
+            file:write(Fp, NewBin),
+            file:close(Fp),
+            io:format(">>> new png file was successfully generated!~n")
     end;
 main(_) ->
     io:format(">>> You must specify ONE PNG file and ONE ZIP file~n").

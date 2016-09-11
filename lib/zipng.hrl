@@ -36,7 +36,7 @@ split_into_chunks(BinPNG) ->
 
     CrcBody = <<Name:32, Data:LenInBit>>,
     %% chunk output
-    io:format("Name: ~p | Size: ~10B | CRC32: ~10B | valid: ~p~n", [binary:encode_unsigned(Name), DataLen, CRC32, CRC32 =:= erlang:crc32(CrcBody)]),
+    io:format("Name: ~p | Size: ~7B | CRC32: ~10B | valid: ~p~n", [binary:encode_unsigned(Name), DataLen, CRC32, CRC32 =:= erlang:crc32(CrcBody)]),
 
     case binary:encode_unsigned(Name) of
         <<"IEND">> ->
@@ -64,13 +64,10 @@ make_archive(FileNameList) ->
 
 make_zTXT_chunk(ZipBin) ->
     BinSize = 3 + length(binary_to_list(ZipBin)),
-    BinSizeInBit = BinSize * 8,
     OtherData = <<"zTXT", " ">>,
     ChunkData = << OtherData/binary, 0:8, 0:8, ZipBin/binary >>,
     CRC32 = erlang:crc32(ChunkData),
-    Ret = <<BinSize:32, ChunkData/binary, CRC32:32>>,
-    split_into_chunks(Ret),
-    Ret.
+    <<BinSize:32, ChunkData/binary, CRC32:32>>.
 
 %%========================================
 %% test methods

@@ -1,2 +1,5 @@
 *.beam
+out_*.png
+
+test
 dot_byZipng.png
