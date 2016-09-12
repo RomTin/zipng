@@ -19,7 +19,7 @@
 
 %% Central Directory Header Signature
 -define(CENTRAL, hex_to_bin(
-                   ["02", "01", "4b", "50"]).
+                   ["02", "01", "4b", "50"])).
 
 %% End Of Central Directory Record
 -define(EOCENTRAL, hex_to_bin(
@@ -55,15 +55,15 @@ split_into_dir(ZipBin) ->
             <<FCLenL:16>> = <<FCLen:16/little-unsigned-integer>>,
             <<FileName:FNLenL, ExtraField:EFLenL, FileComment:FCLenL, Rest3/binary>> = Rest2,
             [{central,
-              <<Signature:32, Other1:192, FNLen:16, FCLen;16, Other2:64, LCOffset:32,
-               FileName:FNLenL, ExtraField:EFLenL, FileComment;FCLenL>>}
+              <<Signature:32, Other1:192, FNLen:16, FCLen:16, Other2:64, LCOffset:32,
+               FileName:FNLenL, ExtraField:EFLenL, FileComment:FCLenL>>}
              | split_into_dir(Rest3)];
         ?EOCENTRAL ->
             <<Other:96, CDOffset:32, FCLen:16, Rest2/binary>> = Rest,
             <<FCLenL:16>> = <<FCLen:16/little-unsigned-integer>>,
             <<FileComment:FCLenL, Rest3/binary>> = Rest2,
             [{central,
-            <<Signature:32, Other:96, FCLen:16, FileCOmment:FCLenL>>}
+            <<Signature:32, Other:96, CDOffset:32, FCLen:16, FileComment:FCLenL>>}
             | split_into_dir(Rest3)]
     end.
 

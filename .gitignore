@@ -1,5 +1,6 @@
 *.beam
 out_*
 
+.idea
 test
 dot_byZipng.png
