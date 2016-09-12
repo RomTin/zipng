@@ -13,9 +13,20 @@
                  "49", "45", "4e", "44",
                  "ae", "42", "60", "82"])).
 
+%% Local File Header Signature
+-define(LOCAL, hex_to_bin(
+                 ["04", "03", "4b", "50"])).
+
+%% Central Directory Header Signature
+-define(CENTRAL, hex_to_bin(
+                   ["02", "01", "4b", "50"]).
+
+%% End Of Central Directory Record
+-define(EOCENTRAL, hex_to_bin(
+                    ["06", "05", "4b", "50"])).
 
 %%========================================
-%% API
+%% API PNG
 %%========================================
 load_png(Fname) ->
     {ok, FileBin} = file:read_file(Fname),
