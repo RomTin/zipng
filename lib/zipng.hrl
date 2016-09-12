@@ -23,7 +23,54 @@
 
 %% End Of Central Directory Record
 -define(EOCENTRAL, hex_to_bin(
-                    ["06", "05", "4b", "50"])).
+                     ["06", "05", "4b", "50"])).
+
+
+%%========================================
+%% API ZIP
+%%========================================
+
+split_into_dir(<<"">>) ->
+    [];
+split_into_dir(ZipBin) ->
+    <<Signature:32, Rest/binary>> = ZipBin,
+    <<SignatureL:32>> = <<Signature:32/little-unsigned-integer>>,
+    case binary:encode_unsigned(SignatureL) of
+        ?LOCAL ->
+            <<Other1:112, Size:32, Other2:32, FNLen:16, EFLen:16,
+              Rest2/binary>> = Rest,
+            <<SizeL:32>> = <<Size:32/little-unsigned-integer>>,
+            <<FNLenL:16>> = <<FNLen:16/little-unsigned-integer>>,
+            <<EFLenL:16>> = <<EFLen:16/little-unsigned-integer>>,
+            <<FileName:FNLenL, ExtraField:EFLenL, Data:SizeL, Rest3/binary>> = Rest2,
+            [{local,
+              <<Signature:32, Other1:112, Size:32, Other2:32,
+                FNLen:16, EFLen:16, FileName:FNLenL, ExtraField:EFLenL, Data:SizeL>>}
+             | split_into_dir(Rest3)];
+        ?CENTRAL ->
+            <<Other1:192, FNLen:16, EFLen:16, FCLen:16, Other2:64, LCOffset:32,
+              Rest2/binary>> = Rest,
+            <<FNLenL:16>> = <<FNLen:16/little-unsigned-integer>>,
+            <<EFLenL:16>> = <<EFLen:16/little-unsigned-integer>>,
+            <<FCLenL:16>> = <<FCLen:16/little-unsigned-integer>>,
+            <<FileName:FNLenL, ExtraField:EFLenL, FileComment:FCLenL, Rest3/binary>> = Rest2,
+            [{central,
+              <<Signature:32, Other1:192, FNLen:16, FCLen;16, Other2:64, LCOffset:32,
+               FileName:FNLenL, ExtraField:EFLenL, FileComment;FCLenL>>}
+             | split_into_dir(Rest3)];
+        ?EOCENTRAL ->
+            <<Other:96, CDOffset:32, FCLen:16, Rest2/binary>> = Rest,
+            <<FCLenL:16>> = <<FCLen:16/little-unsigned-integer>>,
+            <<FileComment:FCLenL, Rest3/binary>> = Rest2,
+            [{central,
+            <<Signature:32, Other:96, FCLen:16, FileCOmment:FCLenL>>}
+            | split_into_dir(Rest3)]
+    end.
+
+add_offset(Binary, OFFSET) ->
+    <<Value:32/little-unsigned-integer>> = Binary,
+    <<Ret:32/little-unsigned-integer>> = << (Value + OFFSET):32>>,
+    <<Ret:32>>.
 
 %%========================================
 %% API PNG
@@ -32,16 +79,16 @@ load_png(Fname) ->
     {ok, FileBin} = file:read_file(Fname),
     FileBin.
 
-check_sign(BinPNG) ->
-    <<Signature:64, Rest/binary>> = BinPNG,
+check_sign(PNGBin) ->
+    <<Signature:64, Rest/binary>> = PNGBin,
     BinSignature = binary:encode_unsigned(Signature),
     {(BinSignature =:= ?SIGN), Rest}.
 
 split_into_chunks(<<"">>) ->
     [];
-split_into_chunks(BinPNG) ->
-    %% BinPNG must not contain SIGNATURE
-    <<DataLen:32, Name:32, _Rest/binary>> = BinPNG,
+split_into_chunks(PNGBin) ->
+    %% PNGBin must not contain SIGNATURE
+    <<DataLen:32, Name:32, _Rest/binary>> = PNGBin,
     LenInBit = DataLen * 8,
     <<Data:LenInBit, CRC32:32, Rest/binary>> = _Rest,
 
