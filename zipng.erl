@@ -19,7 +19,9 @@ main(Arguments) when length(Arguments) >= 2 ->
             halt();
         true ->
             PNGBinList = lists:droplast([Bin || {_, Bin} <- split_into_chunks(PNGBin)]),
-            ZipBin = make_zTXT_chunk(make_archive(ZipList)),
+            ZipOffset = byte_size(list_to_binary([?SIGN | PNGBinList])) + ?ZTXT_CHUNK_OFFSET,
+            ZipBinList = split_into_dir(make_archive(ZipList), ZipOffset),
+            ZipBin = make_zTXT_chunk(list_to_binary([ Bin || {_, Bin} <- ZipBinList])),
             NewBin = list_to_binary([?SIGN | PNGBinList] ++ [ZipBin, ?IEND]),
             {ok, Fp} = file:open("./out_" ++ filename:basename(PNG), write),
             file:write(Fp, NewBin),
