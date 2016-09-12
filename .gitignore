@@ -1,5 +1,5 @@
 *.beam
-out_*.png
+out_*
 
 test
 dot_byZipng.png

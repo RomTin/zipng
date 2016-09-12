@@ -2,6 +2,8 @@
 %% -*- erlang -*-
 
 -include("./lib/zipng.hrl").
+-define(ZTXT_CHUNK_OFFSET, 11).
+-define(IEND_OFFSET, -12).
 
 %%========================================
 %% main
@@ -18,7 +20,7 @@ main(Arguments) when length(Arguments) >= 2 ->
         true ->
             PNGBinList = lists:droplast([Bin || {_, Bin} <- split_into_chunks(PNGBin)]),
             ZipBin = make_zTXT_chunk(make_archive(ZipList)),
-            NewBin = list_to_binary([?SIGN | PNGBinList] ++ [?IEND, ZipBin]),
+            NewBin = list_to_binary([?SIGN | PNGBinList] ++ [ZipBin, ?IEND]),
             {ok, Fp} = file:open("./out_" ++ filename:basename(PNG), write),
             file:write(Fp, NewBin),
             file:close(Fp),
