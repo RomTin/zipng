@@ -1,5 +1,7 @@
 # hide png and zip each other
 
+**!! UNFORTUNATELY, sometimes archive manager CAN'T extract generated zip archive file. please use `unzip` command to extract that !!**
+
 ZIP will be hidden in PNG as zTXT chunk, and that PNG is still surely **VALID**.
 
 On the other hand, PNG will be hidden in ZIP as extra data that is located in forehand section of that ZIP, and that ZIP is also still surely **VALID**.
@@ -11,7 +13,7 @@ On the other hand, PNG will be hidden in ZIP as extra data that is located in fo
 ```
 $ chmod u+x ./*.erl
 $ ./zipng.erl path/to/png path/to/file1 path/to/file2 ...
-%% file1,2...will be zipped and appended to png1
+%% file1,2...will be zipped and appended to png
 ```
 
 ### notifications
