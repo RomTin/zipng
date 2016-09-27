@@ -1,6 +1,8 @@
-# hide png and zip each other
+# This is a zip. This is a png
 
 **!! UNFORTUNATELY, sometimes archive manager CAN'T extract generated zip archive file. please use `unzip` command to extract that !!**
+
+This is a command line tool to generate png file which hides a zip file in its zTXT chunk.
 
 ZIP will be hidden in PNG as zTXT chunk, and that PNG is still surely **VALID**.
 
